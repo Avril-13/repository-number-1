@@ -1,0 +1,20 @@
+import requests
+from bs4 import BeautifulSoup
+
+def scrape_wikipedia_summary(page_title):
+    url = f"https://ru.wikipedia.org/wiki/Лингвистический_ландшафт"
+    
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+    
+        summary = soup.find('p').text
+        return summary
+    else:
+        return f"Page not found. Status code: {response.status_code}"
+
+if __name__ == "__main__":
+    page_title = "Python_(programming_language)"
+    summary = scrape_wikipedia_summary(page_title)
+    print(summary)
