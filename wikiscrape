@@ -10,4 +10,4 @@ list(soup.children)
 print(soup.find_all('p')[0].get_text())
 print(soup.find_all('p')[1].get_text())
 print(soup.find_all('p')[2].get_text())
-print(soup.find_all('p')[3].get_text())
+
