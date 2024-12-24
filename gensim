@@ -1,4 +1,4 @@
-!wget http://localhost:8888/edit/ll.txt
+!wget https://github.com/Avril-13/repository-number-1/blob/main/ll.txt
 
 from gensim.utils import simple_preprocess
 from gensim.models import Word2Vec
