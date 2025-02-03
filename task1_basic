@@ -1,1 +1,34 @@
+# Шаг 1: установка библиотек
+import nltk
+from nltk.corpus import stopwords
+import re
+import spacy
 
+nltk.download('stopwords')
+
+# Шаг 2: загрузка текста
+!wget text.txt https://github.com/vifirsanova/compling/blob/main/tasks/task1/data.txt
+
+# Шаг 3: удаление пунктуации с помощью модуля re
+cleaned_text = re.sub(r'[^\w\s]', '', text)
+print("Текст без пунктуации:", cleaned_text)
+
+# Шаг 4: приведение текста к нижнему регистру
+cleaned_text = cleaned_text.lower()
+print("Текст в нижнем регистре:", cleaned_text)
+
+# Шаг 5: удаление стоп-слов с помощью NLTK
+stop_words = set(stopwords.words('english'))
+filtered_words = [word for word in cleaned_text.split() if word not in stop_words]
+print("Текст без стоп-слов:", filtered_words)
+
+# Шаг 6: лемматизация с помощью SpaCy
+nlp = spacy.load("en_core_web_sm")
+doc = nlp(' '.join(filtered_words))
+
+lemmatized_words = [token.lemma_ for token in doc]
+print("Лемматизированный текст:", lemmatized_words)
+
+# Шаг 7: вывод результатов
+final_text = ' '.join(lemmatized_words)
+print("Итоговый текст:", final_text)
