@@ -1,0 +1,108 @@
+# Шаг 1: Установка необходимых библиотек и загрузка текста
+!pip install datasets nltk spacy -q
+
+# Импорт наших инструментов
+from datasets import Dataset
+import pandas as pd
+import spacy
+import nltk
+from nltk import pos_tag, word_tokenize, download
+import requests
+
+# Загружаем Spacy
+!python -m spacy download en_core_web_sm
+nlp = spacy.load("en_core_web_sm")
+
+# Подключаем ресурсы NLTK
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('punkt_tab')
+nltk.download('averaged_perceptron_tagger_eng')
+
+# Загрузка текста для разметки
+url = "https://raw.githubusercontent.com/vifirsanova/compling/main/tasks/task1/data.txt"
+response = requests.get(url)
+text = response.text
+
+# Шаг 2: Выделение частей речи с использованием NLTK
+def nltk_pos_tagging(text):
+    tokens = word_tokenize(text)
+    return pos_tag(tokens)
+
+# Ссылки на документацию
+# NLTK: https://www.nltk.org/api/nltk.tokenize.html#nltk.tokenize.word_tokenize
+# NLTK: https://www.nltk.org/api/nltk.html#nltk.pos_tag
+
+
+# Выполняем частеречную разметку
+nltk_results = nltk_pos_tagging(text)
+print("Частеречная разметка с использованием NLTK:", nltk_results)
+
+# Шаг 3: Разметка с помощью spacy
+def spacy_annotation(text):
+    doc = nlp(text)  # Применяем метод nlp для разбора текста
+
+    # Выделение частей речи
+    pos_tags = [(token.text, token.pos_) for token in doc]
+
+    # Выделение именованных сущностей
+    named_entities = [(ent.text, ent.label_) for ent in doc.ents]
+
+    # Выделение синтаксических зависимостей
+    dependencies = [(token.text, token.dep_, token.head.text) for token in doc]
+
+    # Формируем словарь с результатами разметки
+    return {
+        "pos_tags": pos_tags,
+        "named_entities": named_entities,
+        "dependencies": dependencies
+    }
+
+# Выполняем разметку текста
+spacy_results = spacy_annotation(text)
+print("Результаты разметки с использованием SpaCy:", spacy_results)
+
+# Ссылки на документацию
+# SpaCy: https://spacy.io/api/token#text
+# SpaCy: https://spacy.io/api/token#dep
+
+# Шаг 4: Преобразование результатов в датафрейм
+data = []  # создаем пустой список
+
+# добавляем в data все, что мы разметили ранее
+data.append({
+    "text": text,
+    "nltk_pos": nltk_results,               # Части речи с NLTK
+    "spacy_pos": spacy_results["pos_tags"], # Части речи с SpaCy
+    "named_entities": spacy_results["named_entities"],  # Именованные сущности
+    "dependencies": spacy_results["dependencies"]  # Синтаксические зависимости
+})
+
+df = pd.DataFrame(data)  # создаем датафрейм с data
+
+# Шаг 5: визуализация результатов
+# этот код позволяет отобразить дерево зависимостей с помощью SpaCy
+# посмотрите, как работает ваша разметка
+example_text = text  # попробуйте визуализировать любой другой текст
+doc = nlp(example_text)
+from spacy import displacy
+displacy.render(doc, style="dep", jupyter=True, options={"distance": 120})
+
+# Шаг 7: загрузка на HF Datasets
+# Создаем датасет
+!pip install datasets -q
+
+from datasets import Dataset
+
+# Конвертация в Dataset
+dataset = Dataset.from_pandas(df)
+
+# Загрузка на Hugging Face Datasets
+dataset.push_to_hub("d2", token="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")
+
+# Публикация датасета
+# Замените 'your_dataset_name' на имя вашего датасета и добавьте токен.
+# dataset.push_to_hub("your_dataset_name", token="your_hf_token")
+
+# просмотр результатов
+print(dataset)
